@@ -6,15 +6,11 @@ Super lightweight mock & proxy server.
 
 Add this line to your application's Gemfile:
 
-    gem 'mock_proxy'
+    gem "mock_proxy", '>=0.0.1', :git => 'https://github.com/kozy4324/mock_proxy.git'
 
 And then execute:
 
     $ bundle
-
-Or install it yourself as:
-
-    $ gem install mock_proxy
 
 ## Usage
 
