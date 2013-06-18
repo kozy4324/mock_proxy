@@ -41,6 +41,7 @@ module MockProxy
         hash[key] = val[0]
         hash
       }
+      headers.delete("transfer-encoding")
       [res.code.to_i, headers, res.body]
     end
 
