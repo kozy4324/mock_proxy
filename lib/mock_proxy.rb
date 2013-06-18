@@ -31,11 +31,17 @@ module MockProxy
     
     get /.*/ do
       path = "#{request.path}?#{request.query_string}"
-      settings.mem_cache.fetch path do
+      res = settings.mem_cache.fetch path do
         settings.file_cache.fetch path do
-          Net::HTTP.get(settings.opt[:destination_host], path, settings.opt[:destination_port])
+          Net::HTTP.get_response(settings.opt[:destination_host], path, settings.opt[:destination_port])
         end
       end
+      headers = res.to_hash.inject({}){|hash, kv|
+        key, val = kv
+        hash[key] = val[0]
+        hash
+      }
+      [res.code.to_i, headers, res.body]
     end
 
   end
