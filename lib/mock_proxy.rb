@@ -1,6 +1,7 @@
 # coding: utf-8
 
 require 'net/http'
+require 'digest/sha1'
 require 'sinatra/base'
 require 'active_support/cache'
 
@@ -34,17 +35,18 @@ module MockProxy
       mem_cache = settings.mem_cache
       file_cache = settings.file_cache
       path = "#{request.path}?#{request.query_string}"
-      res = mem_cache.read(path)
+      key = Digest::SHA1.digest(path).each_byte.map{|b| format('%x', b)}.to_a.join('')
+      res = mem_cache.read(key)
       if res.nil?
-        res = file_cache.read(path)
-        mem_cache.write(path, res) unless res.nil?
+        res = file_cache.read(key)
+        mem_cache.write(key, res) unless res.nil?
       end
       if res.nil?
         return [503, {}, nil] if settings.opt[:disable_proxy]
         res = Net::HTTP.get_response(settings.opt[:destination_host], path, settings.opt[:destination_port])
         return [503, {}, nil] unless res.code == '200'
-        mem_cache.write(path, res)
-        file_cache.write(path, res)
+        mem_cache.write(key, res)
+        file_cache.write(key, res)
       end
       headers = res.to_hash.inject({}){|hash, kv|
         key, val = kv
