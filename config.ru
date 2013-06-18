@@ -2,4 +2,6 @@
 #\ --port 3333
 require './lib/mock_proxy'
 MockProxy::App[:cache_path] = './.cache'
+MockProxy::App[:destination_host] = 'kozy4324.github.io'
+MockProxy::App[:destination_port] = 80
 run MockProxy::App

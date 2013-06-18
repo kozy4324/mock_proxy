@@ -1,5 +1,6 @@
 # coding: utf-8
 
+require 'net/http'
 require 'sinatra/base'
 require 'active_support/cache'
 
@@ -9,7 +10,9 @@ module MockProxy
 
     set :opt, {
       :cache_path => './.cache',
-      :mem_cache_size => 32.megabytes
+      :mem_cache_size => 32.megabytes,
+      :destination_host => 'localhost',
+      :destination_port => 80
     }
 
     def App.[]=(key, value)
@@ -27,10 +30,10 @@ module MockProxy
     end
     
     get /.*/ do
-      cache_key = "#{request.path}?#{request.query_string}"
-      settings.mem_cache.fetch cache_key do
-        settings.file_cache.fetch cache_key do
-          "Heeeeeeello\n"
+      path = "#{request.path}?#{request.query_string}"
+      settings.mem_cache.fetch path do
+        settings.file_cache.fetch path do
+          Net::HTTP.get(settings.opt[:destination_host], path, settings.opt[:destination_port])
         end
       end
     end
