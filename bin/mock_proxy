@@ -1,0 +1,8 @@
+#!/usr/bin/env ruby
+
+require 'sinatra'
+require 'mock_proxy'
+
+get '/' do
+  "Hello\n"
+end
