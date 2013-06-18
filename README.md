@@ -1,6 +1,6 @@
 # MockProxy
 
-TODO: Write a gem description
+Super lightweight mock & proxy server.
 
 ## Installation
 
@@ -18,7 +18,39 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+create `config.ru` as below.
+
+    # This file is used by Rack-based servers to start the application.
+    #\ --port 3333
+    require 'mock_proxy'
+    MockProxy::App[:cache_path] = './.cache'
+    MockProxy::App[:destination_host] = 'kozy4324.github.io'
+    MockProxy::App[:destination_port] = 80
+    run MockProxy::App
+
+run server.
+
+    $ rackup config.ru
+
+request server.
+
+    $ curl http://localhost:3333/
+    $ curl http://localhost:3333/blog/archives/
+
+retrieved contents have been stored in file.
+
+    $ tree .cache/
+    .cache/
+    ├── 13C
+    │   └── 110
+    │       └── %2F%3F
+    └── 76F
+        └── 820
+            └── %2Fblog%2Farchives%2F%3F
+    
+    4 directories, 2 files
+
+after being stored, server will never request destination server.
 
 ## Contributing
 
