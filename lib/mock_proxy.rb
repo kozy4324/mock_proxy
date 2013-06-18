@@ -12,7 +12,8 @@ module MockProxy
       :cache_path => './.cache',
       :mem_cache_size => 32.megabytes,
       :destination_host => 'localhost',
-      :destination_port => 80
+      :destination_port => 80,
+      :disable_proxy => false,
     }
 
     def App.[]=(key, value)
@@ -30,15 +31,20 @@ module MockProxy
     end
     
     get /.*/ do
+      mem_cache = settings.mem_cache
+      file_cache = settings.file_cache
       path = "#{request.path}?#{request.query_string}"
-      res = settings.mem_cache.fetch path do
-        settings.file_cache.fetch path do
-          Net::HTTP.get_response(settings.opt[:destination_host], path, settings.opt[:destination_port])
-        end
+      res = mem_cache.read(path)
+      if res.nil?
+        res = file_cache.read(path)
+        mem_cache.write(path, res) unless res.nil?
       end
-      if res.code != "200"
-        settings.file_cache.delete path
-        settings.mem_cache.delete path
+      if res.nil?
+        return [503, {}, nil] if settings.opt[:disable_proxy]
+        res = Net::HTTP.get_response(settings.opt[:destination_host], path, settings.opt[:destination_port])
+        return [503, {}, nil] unless res.code == '200'
+        mem_cache.write(path, res)
+        file_cache.write(path, res)
       end
       headers = res.to_hash.inject({}){|hash, kv|
         key, val = kv
