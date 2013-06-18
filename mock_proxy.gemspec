@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = MockProxy::VERSION
   spec.authors       = ["Koji NAKAMURA"]
   spec.email         = ["kozy4324@gmail.com"]
-  spec.description   = %q{TODO: Write a gem description}
-  spec.summary       = %q{TODO: Write a gem summary}
-  spec.homepage      = ""
+  spec.description   = %q{Super lightweight mock & proxy server.}
+  spec.summary       = %q{Super lightweight mock & proxy server.}
+  spec.homepage      = "https://github.com/kozy4324/mock_proxy"
   spec.license       = "MIT"
 
   spec.files         = `git ls-files`.split($/)
