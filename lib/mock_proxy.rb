@@ -58,6 +58,7 @@ module MockProxy
         hash
       }
       headers.delete("transfer-encoding")
+      headers.delete("content-length")
       [res.code.to_i, headers, res.body]
     end
 
