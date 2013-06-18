@@ -37,12 +37,12 @@ retrieved contents have been stored in file.
 
     $ tree .cache/
     .cache/
-    ├── 13C
-    │   └── 110
-    │       └── %2F%3F
-    └── 76F
-        └── 820
-            └── %2Fblog%2Farchives%2F%3F
+    ├── 909
+    │   └── 970
+    │       └── 87dc308737c37c6c518bb3d207f74942f41
+    └── 9A7
+        └── 3D0
+            └── 6a3355733665303b6658af41478027b022d7d97c
     
     4 directories, 2 files
 
