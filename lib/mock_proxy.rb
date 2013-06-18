@@ -36,6 +36,10 @@ module MockProxy
           Net::HTTP.get_response(settings.opt[:destination_host], path, settings.opt[:destination_port])
         end
       end
+      if res.code != "200"
+        settings.file_cache.delete path
+        settings.mem_cache.delete path
+      end
       headers = res.to_hash.inject({}){|hash, kv|
         key, val = kv
         hash[key] = val[0]
