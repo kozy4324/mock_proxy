@@ -15,6 +15,7 @@ module MockProxy
       :destination_host => 'localhost',
       :destination_port => 80,
       :disable_proxy => false,
+      :normalize_query => nil,
     }
 
     def App.[]=(key, value)
@@ -35,6 +36,9 @@ module MockProxy
       mem_cache = settings.mem_cache
       file_cache = settings.file_cache
       path = "#{request.path}?#{request.query_string}"
+      unless settings.opt[:normalize_query].nil?
+        path = settings.opt[:normalize_query].call(path)
+      end
       key = Digest::SHA1.digest(path).each_byte.map{|b| format('%x', b)}.to_a.join('')
       res = mem_cache.read(key)
       if res.nil?
