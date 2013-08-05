@@ -18,6 +18,7 @@ module MockProxy
       :destination_port => 80,
       :disable_proxy => false,
       :normalize_query => nil,
+      :wait_sec => nil,
     }
 
     def App.[]=(key, value)
@@ -70,6 +71,9 @@ module MockProxy
       }
       headers.delete("transfer-encoding")
       headers.delete("content-length")
+      unless settings.opt[:wait_sec].nil?
+        sleep settings.opt[:wait_sec].to_i
+      end
       [res.code.to_i, headers, res.body]
     end
 
