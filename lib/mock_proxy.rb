@@ -9,6 +9,8 @@ module MockProxy
 
   class App < Sinatra::Base
 
+    use Rack::Logger
+
     set :opt, {
       :cache_path => './.cache',
       :mem_cache_size => 32.megabytes,
@@ -46,11 +48,20 @@ module MockProxy
         mem_cache.write(key, res) unless res.nil?
       end
       if res.nil?
-        return [503, {}, nil] if settings.opt[:disable_proxy]
+        if settings.opt[:disable_proxy]
+          request.logger.info "Disabled - http://#{settings.opt[:destination_host]}:#{settings.opt[:destination_port]}#{path}"
+          return [503, {}, nil]
+        end
+        request.logger.info "Fetching - http://#{settings.opt[:destination_host]}:#{settings.opt[:destination_port]}#{path}"
         res = Net::HTTP.get_response(settings.opt[:destination_host], path, settings.opt[:destination_port])
-        return [503, {}, nil] unless res.code == '200'
+        unless res.code == '200'
+          request.logger.info "Fetch failed - http://#{settings.opt[:destination_host]}:#{settings.opt[:destination_port]}#{path}"
+          return [503, {}, nil]
+        end
         mem_cache.write(key, res)
         file_cache.write(key, res)
+      else
+        request.logger.info "Cache hit - http://#{settings.opt[:destination_host]}:#{settings.opt[:destination_port]}#{path}"
       end
       headers = res.to_hash.inject({}){|hash, kv|
         key, val = kv
