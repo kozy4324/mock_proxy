@@ -53,11 +53,23 @@ module MockProxy
           request.logger.info "Disabled - http://#{settings.opt[:destination_host]}:#{settings.opt[:destination_port]}#{path}"
           return [503, {}, nil]
         end
-        request.logger.info "Fetching - http://#{settings.opt[:destination_host]}:#{settings.opt[:destination_port]}#{path}"
-        res = Net::HTTP.get_response(settings.opt[:destination_host], path, settings.opt[:destination_port])
-        unless res.code == '200'
-          request.logger.info "Fetch failed - http://#{settings.opt[:destination_host]}:#{settings.opt[:destination_port]}#{path}"
-          return [503, {}, nil]
+        retry_count = 3
+        begin
+          request.logger.info "Fetching - http://#{settings.opt[:destination_host]}:#{settings.opt[:destination_port]}#{path}"
+          res = Net::HTTP.get_response(settings.opt[:destination_host], path, settings.opt[:destination_port])
+          unless res.code == '200'
+            request.logger.info "Fetch failed - http://#{settings.opt[:destination_host]}:#{settings.opt[:destination_port]}#{path}"
+            return [503, {}, nil]
+          end
+        rescue
+          retry_count -= 1
+          if retry_count > 0
+            request.logger.info "Retry fetching - http://#{settings.opt[:destination_host]}:#{settings.opt[:destination_port]}#{path}"
+            retry
+          else
+            request.logger.info "Fetch failed - http://#{settings.opt[:destination_host]}:#{settings.opt[:destination_port]}#{path}"
+            return [503, {}, nil]
+          end
         end
         mem_cache.write(key, res)
         file_cache.write(key, res)
