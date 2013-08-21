@@ -85,7 +85,7 @@ module MockProxy
       headers.delete("transfer-encoding")
       headers.delete("content-length")
       unless settings.opt[:wait_sec].nil?
-        sleep settings.opt[:wait_sec].to_i
+        sleep settings.opt[:wait_sec].to_f
       end
       [res.code.to_i, headers, res.body]
     end
